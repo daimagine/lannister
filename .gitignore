@@ -1,0 +1,11 @@
+bin/
+include/
+lib/
+logs/
+src/
+.Python
+pip-selfcheck.json
+*.pyc
+*.pyo
+*.rdb
+.ropeproject/
