@@ -17,7 +17,11 @@ DATABASE = {
 # Default version of the API
 DEFAULT_API = 'v1'
 
+# Server configuration
+SERVER_PORT = "8000"
+
 # Log configuration
+DEBUG_ENABLED = True
 LOG_LEVEL = logging.DEBUG
 USE_SYSLOG = False
 SYSLOG_TAG = "lannister.dev"

@@ -15,6 +15,7 @@ from sqlalchemy.orm import scoped_session, sessionmaker
 
 # resource handlers
 from lannister.handlers.products import ProductHandler
+from lannister.handlers.sessions import SessionHandler
 
 
 class Application(tornado.web.Application):
@@ -22,6 +23,7 @@ class Application(tornado.web.Application):
         api_version = '/api/' + settings.DEFAULT_API
         handlers = [
             (r"/", HomeHandler),
+            (r"%s/sessions/create" % api_version, SessionHandler),
             (r"%s/products" % api_version, ProductHandler)
         ]
 

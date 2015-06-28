@@ -5,15 +5,18 @@ import tornado.ioloop
 import tornado.web
 # logging
 from lannister.utils.logs import logger
+# settings
+from lannister import settings
 # application
 from lannister.common.application import Application
 from lannister.common.safe_httpserver import SafeHTTPServer
 
 # cmd line options
-tornado.options.define('port', type=int, default=8080, 
-    help='server port number (default: 8080)')
-tornado.options.define('debug', type=bool, default=False, 
-    help='run in debug mode with autoreload (default: false)')
+tornado.options.define('port', type=int, default=settings.SERVER_PORT,
+    help='server port number (default: %s)' % settings.SERVER_PORT)
+tornado.options.define('debug', type=bool, default=settings.DEBUG_ENABLED,
+    help='run in debug mode with autoreload(default: %s)' % settings.DEBUG_ENABLED)
+
 
 def main():
     logger.debug('Initiate tornado server')
@@ -24,7 +27,7 @@ def main():
 
     http_server = SafeHTTPServer(application)
     http_server.listen(options.port)
-    logger.info('started on port: %d', options.port)
+    logger.info('started on port: %s', options.port)
     ioloop.start()
 
 

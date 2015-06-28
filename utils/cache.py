@@ -34,7 +34,7 @@ class CacheMixin(object):
         will_cache = True
         if hasattr(self, "cache_enabled"):
             will_cache = self.cache_enabled
-        logger.debug('cache_enabled is %s', will_cache)
+        logger.debug('prepare: cache_enabled is %s', will_cache)
 
         key = self._generate_key(self.request)
         if self.cache.exists(self._prefix(key)) and will_cache:
@@ -51,13 +51,14 @@ class CacheMixin(object):
         return "Cache:%s" % key
  
     def write_cache(self, chunk):
+        logger.debug('write cache')
         super(CacheMixin, self).write(chunk)
  
     def write(self, chunk):
         will_cache = True
         if hasattr(self, "cache_enabled"):
             will_cache = self.cache_enabled
-        logger.debug('cache_enabled is %s', will_cache)
+        logger.debug('write: cache_enabled is %s', will_cache)
 
         if self.get_status() == 200 and will_cache:
             pickled = pickle.dumps(chunk)
