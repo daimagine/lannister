@@ -28,8 +28,9 @@ class SessionHandler(JSONHandler):
                 raise AuthenticationException('Invalid Captcha')
             
             # find customer by email criteria
+            self.db.begin()
             criteria = self.db.query(Customer)
-            logger.debug('find customer by criteria: %s' % email)
+            logger.debug('find customer by email: %s' % email)
             criteria = criteria.filter(Customer.email == email)
             # find or fail customer
             customer = criteria.one()
@@ -69,11 +70,11 @@ class SessionHandler(JSONHandler):
 
         except AuthenticationException, error:
             logger.exception(error)
-            self.write_error(status_code=400, message=error.message);
+            self.write_error(status_code=400, error=error.message);
 
         except Exception, error:
             logger.exception(error)
-            self.write_error(status_code=400, message='authentication failed');
+            self.write_error(status_code=500, error='authentication failed');
 
 
 class AuthenticationException(Exception):

@@ -15,7 +15,7 @@ DATABASE = {
 }
 
 # Default version of the API
-DEFAULT_API = 'v1'
+API_VERSION = 'v1'
 
 # Server configuration
 SERVER_PORT = "8000"

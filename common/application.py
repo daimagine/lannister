@@ -12,20 +12,17 @@ from lannister.common.handler import JSONHandler
 # sql alchemy
 from sqlalchemy import create_engine
 from sqlalchemy.orm import scoped_session, sessionmaker
+# dogpiles
+from dogpile.cache.region import make_region
+from lannister.utils.caching_query import query_callable
+from hashlib import md5
 
-# resource handlers
-from lannister.handlers.products import ProductHandler
-from lannister.handlers.sessions import SessionHandler
+# routes
+from lannister.utils.routes import AppHandlers
 
 
 class Application(tornado.web.Application):
     def __init__(self):
-        api_version = '/api/' + settings.DEFAULT_API
-        handlers = [
-            (r"/", HomeHandler),
-            (r"%s/sessions/create" % api_version, SessionHandler),
-            (r"%s/products" % api_version, ProductHandler)
-        ]
 
         tornado_settings = dict(
             xsrf_cookies=False,
@@ -50,14 +47,59 @@ class Application(tornado.web.Application):
         )
 
         db_engine = create_engine(dsn, echo=True)
-        self.db = scoped_session(sessionmaker(bind=db_engine))
+        #self.db = scoped_session(sessionmaker(bind=db_engine, autocommit=True))
 
-        super(Application, self).__init__(handlers, **tornado_settings)
+        # dogpile cache regions.  A home base for cache configurations.
+        regions = {}
+
+        # configure the "default" cache region.
+        regions['default'] = make_region(
+                    # string-encoded keys
+                    key_mangler=md5_key_mangler
+                ).configure(
+                    'dogpile.cache.redis',
+                    arguments = {
+                        'host': 'localhost',
+                        'port': 6379,
+                        'db': 0,
+                        'redis_expiration_time': 60*60*2,   # 2 hours
+                        'distributed_lock': True
+                        }
+                )
+
+        # scoped_session.  Apply our custom CachingQuery class to it,
+        # using a callable that will associate the dictionary
+        # of regions with the Query.
+        self.db = scoped_session(
+                        sessionmaker(
+                            bind=db_engine, 
+                            autocommit=True,
+                            query_cls=query_callable(regions)
+                        )
+                    )
+
+        # optional; call invalidate() on the region
+        # once created so that all data is fresh when
+        # the app is restarted.  Good for development,
+        # on a production system needs to be used carefully
+        # regions['default'].invalidate()
+
+        # Match url to preffered Handlers
+        AppHandlers = [
+            (r"/", HomeHandler),
+            (r"%s" % URL["session_create"], SessionHandler),
+            (r"%s" % URL["products"], ProductHandler)
+        ]
+        
+        super(Application, self).__init__(AppHandlers, **tornado_settings)
 
 
-class HomeHandler(JSONHandler):
+def md5_key_mangler(key):
+    """Receive cache keys as long concatenated strings;
+    distill them into an md5 hash.
 
-    def get(self):
-        logger.info('Hello from Jualio')
-        self.response['title'] = "Juali API Service"
-        self.write()
+    """
+    key = md5(key.encode('ascii')).hexdigest()
+    logger.debug('App: md5_key_mangler ')
+    logger.debug(key)
+    return key
