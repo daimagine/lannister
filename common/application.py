@@ -18,7 +18,10 @@ from lannister.utils.caching_query import query_callable
 from hashlib import md5
 
 # routes
-from lannister.utils.routes import AppHandlers
+from lannister.utils.routes import AppURL
+# resource handlers
+from lannister.handlers.products import ProductHandler
+from lannister.handlers.sessions import SessionHandler
 
 
 class Application(tornado.web.Application):
@@ -47,50 +50,15 @@ class Application(tornado.web.Application):
         )
 
         db_engine = create_engine(dsn, echo=True)
-        #self.db = scoped_session(sessionmaker(bind=db_engine, autocommit=True))
-
-        # dogpile cache regions.  A home base for cache configurations.
-        regions = {}
-
-        # configure the "default" cache region.
-        regions['default'] = make_region(
-                    # string-encoded keys
-                    key_mangler=md5_key_mangler
-                ).configure(
-                    'dogpile.cache.redis',
-                    arguments = {
-                        'host': 'localhost',
-                        'port': 6379,
-                        'db': 0,
-                        'redis_expiration_time': 60*60*2,   # 2 hours
-                        'distributed_lock': True
-                        }
-                )
-
-        # scoped_session.  Apply our custom CachingQuery class to it,
-        # using a callable that will associate the dictionary
-        # of regions with the Query.
-        self.db = scoped_session(
-                        sessionmaker(
-                            bind=db_engine, 
-                            autocommit=True,
-                            query_cls=query_callable(regions)
-                        )
-                    )
-
-        # optional; call invalidate() on the region
-        # once created so that all data is fresh when
-        # the app is restarted.  Good for development,
-        # on a production system needs to be used carefully
-        # regions['default'].invalidate()
+        self.db = scoped_session(sessionmaker(bind=db_engine, autocommit=True))
 
         # Match url to preffered Handlers
         AppHandlers = [
             (r"/", HomeHandler),
-            (r"%s" % URL["session_create"], SessionHandler),
-            (r"%s" % URL["products"], ProductHandler)
+            (r"%s" % AppURL["session_create"], SessionHandler),
+            (r"%s" % AppURL["products"], ProductHandler)
         ]
-        
+
         super(Application, self).__init__(AppHandlers, **tornado_settings)
 
 
@@ -103,3 +71,11 @@ def md5_key_mangler(key):
     logger.debug('App: md5_key_mangler ')
     logger.debug(key)
     return key
+
+
+class HomeHandler(JSONHandler):
+
+    def get(self):
+        logger.info('Hello from Jualio')
+        self.response['title'] = "Juali API Service"
+        self.write()

@@ -11,6 +11,7 @@ from lannister.common.handler import JSONHandler, CacheJSONHandler
 from stark.models.product import Product, ProductSchema
 from lannister.utils.caching_query import FromCache, RelationshipCache
 
+from lannister.utils.routes import AppURL
 
 class ProductHandler(CacheJSONHandler):
 	@gen.coroutine

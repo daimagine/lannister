@@ -14,7 +14,7 @@ import base64
  
 from lannister.utils.logs import logger
  
-def cache(expires=7200, cache_enabled=True, refresh_cache=[]):
+def cache(expires=7200, cache_enabled=True, refresh_prefixes=[]):
     def _func(func):
         @functools.wraps(func)
         def wrapper(handler, *args, **kwargs):
