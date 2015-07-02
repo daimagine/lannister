@@ -22,6 +22,7 @@ from lannister.utils.routes import AppURL
 # resource handlers
 from lannister.handlers.products import ProductHandler
 from lannister.handlers.sessions import SessionHandler
+from lannister.handlers.tokens import AuthTokenHandler
 
 
 class Application(tornado.web.Application):
@@ -56,6 +57,7 @@ class Application(tornado.web.Application):
         AppHandlers = [
             (r"/", HomeHandler),
             (r"%s" % AppURL["session_create"], SessionHandler),
+            (r"%s" % AppURL["auth_token"], AuthTokenHandler),
             (r"%s" % AppURL["products"], ProductHandler)
         ]
 

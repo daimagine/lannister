@@ -10,38 +10,30 @@ from datetime import datetime, timedelta
 import time
 import calendar
 from lannister.utils.captcha import verify_captcha
+from lannister.handlers.sessions import AuthenticationException
 # schema
 from stark.models.customer import Customer, CustomerAuthSchema
 
 
-class SessionHandler(JSONHandler):
+class AuthTokenHandler(JSONHandler):
+    """Authenticate user based on token"""
+
     @gen.coroutine
     def post(self):
         try:
-            email = self.request.data['email']
-            password = self.request.data['password']
-            captcha = self.request.data['captcha']
-
-            # check captcha
-            captcha_validity = verify_captcha(captcha)
-            if captcha_validity != True:
-                raise AuthenticationException('Invalid Captcha')
+            client_token = self.request.data['client_token']
             
-            # find customer by email criteria
+            # find customer by client_token and valid time criteria
             self.db.begin()
             criteria = self.db.query(Customer)
-            logger.debug('find customer by email: %s' % email)
-            criteria = criteria.filter(Customer.email == email)
+            logger.debug('find customer by client_token: %s' % client_token)
+            criteria = criteria.filter(Customer.client_token == client_token)
+            criteria = criteria.filter(Customer.client_token_valid_time > datetime.utcnow())
+            
             # find or fail customer
             customer = criteria.one()
 
-            # check customer password matching
-            if bcrypt.hashpw(
-                password.encode('utf-8'), 
-                customer.password_1.encode('utf-8')) != customer.password_1:
-                    raise AuthenticationException('Invalid Credential')
-
-            # generate client_token and client_token_valid_time
+            # generate new client_token and client_token_valid_time
             hashed_token = bcrypt.hashpw(customer.email.encode('utf-8'), bcrypt.gensalt(14))
             encoded_token = base64.b64encode(hashed_token)
             client_token = encoded_token
@@ -77,7 +69,3 @@ class SessionHandler(JSONHandler):
             self.db.rollback()
             logger.exception(error)
             self.write_error(status_code=500, error='authentication failed');
-
-
-class AuthenticationException(Exception):
-    ''' Raise when authentication process is failed '''
