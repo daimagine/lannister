@@ -11,17 +11,32 @@ except ImportError:
     sha1 = sha.new
 import functools
 import base64
+from sqlalchemy import event
+from sqlalchemy.orm import Session
  
 from lannister.utils.logs import logger
  
-def cache(expires=7200, cache_enabled=True, refresh_prefixes=[]):
+def cache(expires=7200, cache_enabled=True):
     def _func(func):
         @functools.wraps(func)
         def wrapper(handler, *args, **kwargs):
+            logger.debug('cache annotation')
             handler.expires = expires
             handler.cache_enabled = cache_enabled
-            handler.refresh_cache = refresh_cache
-            return func(handler, *args, **kwargs)
+            try:
+                logger.debug('cache: cache_enabled is %s', cache_enabled)
+                key = handler._prefix(handler._generate_key(handler.request))
+                if handler.cache.exists(key) and cache_enabled:
+                    logger.debug('return cache from redis %s' % key)
+                    rv = pickle.loads(handler.cache.get(key))
+                    handler.write_cache(rv)
+                    handler.finish()
+                else:
+                    return func(handler, *args, **kwargs)
+            except Exception, err:
+                logger.exception(err)
+                logger.debug('prepare failed %s', err.message)
+                return func(handler, *args, **kwargs)
         return wrapper
     return _func
  
@@ -37,22 +52,6 @@ class CacheMixin(object):
  
     def prepare(self):
         super(CacheMixin, self).prepare()
-
-        will_cache = True
-        if hasattr(self, "cache_enabled"):
-            will_cache = self.cache_enabled
-        logger.debug('prepare: cache_enabled is %s', will_cache)
-
-        try:
-            logger.debug('get cache from redis')
-            key = self._generate_key(self.request)
-            if self.cache.exists(self._prefix(key)) and will_cache:
-                logger.debug('return cache from redis %s' % key)
-                rv = pickle.loads(self.cache.get(self._prefix(key)))
-                self.write_cache(rv)
-                self.finish()
-        except Exception, err:
-            logger.debug('redis cache fetch failed %s', err.message)
  
     def _generate_key(self, request):
         key = sha1(pickle.dumps(request.arguments)).hexdigest()
@@ -68,28 +67,24 @@ class CacheMixin(object):
         super(CacheMixin, self).write(chunk)
  
     def write(self, chunk):
-        will_cache = True
         if hasattr(self, "cache_enabled"):
-            will_cache = self.cache_enabled
-        logger.debug('write: cache_enabled is %s', will_cache)
+            logger.debug('write: cache_enabled is %s', self.cache_enabled)
 
-        if self.get_status() == 200 and will_cache:
-            pickled = pickle.dumps(chunk)
-            key = self._generate_key(self.request)
-            logger.debug('write cache to redis %s' % key)
-            if hasattr(self, "expires"):
-                self.cache.set(self._prefix(key), pickled, self.expires)
-            else:
-                self.cache.set(self._prefix(key), pickled)
+            if self.get_status() == 200 and self.cache_enabled:
+                pickled = pickle.dumps(chunk)
+                key = self._generate_key(self.request)
+                logger.debug('write cache to redis %s' % key)
+                if hasattr(self, "expires"):
+                    self.cache.set(self._prefix(key), pickled, self.expires)
+                else:
+                    self.cache.set(self._prefix(key), pickled)
         super(CacheMixin, self).write(chunk)
 
-    def cache_refresh(session, refresh_prefixes):
+    def cache_refresh(self, refresh_prefixes):
         """
         Refresh the functions cache data in a new thread. Starts refreshing only
         after the session was committed so all database data is available.
         """
-        assert isinstance(session, Session), \
-            "Need a session, not a sessionmaker or scoped_session"
 
         @event.listens_for(session, "after_commit")
         def do_refresh(session):
@@ -99,6 +94,8 @@ class CacheMixin(object):
             get the key from from auto_flush annotation
             ex: product:1 (single), products (multiple)
             """
+            for prefix in refresh_prefixes:
+                logger.debug('refresh prefix: %s' % prefix)
             return
  
  

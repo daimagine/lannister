@@ -77,5 +77,5 @@ class HomeHandler(JSONHandler):
 
     def get(self):
         logger.info('Hello from Jualio')
-        self.response['title'] = "Juali API Service"
+        self.response['title'] = "Jualio API Service"
         self.write()

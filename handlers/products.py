@@ -11,11 +11,12 @@ from lannister.common.handler import JSONHandler, CacheJSONHandler
 from stark.models.product import Product, ProductSchema
 from lannister.utils.caching_query import FromCache, RelationshipCache
 
+import re
 from lannister.utils.routes import AppURL
 
 class ProductHandler(CacheJSONHandler):
 	@gen.coroutine
-	@cache(refresh_prefixes=id)
+	@cache()
 	def get(self, id=None):
 		try:
 			logger.debug('get products')
@@ -53,9 +54,3 @@ class ProductHandler(CacheJSONHandler):
 		except Exception as error:
 			logger.exception(error.message)
 			self.write_error(status_code=500, error='Failed to fetch data');
-
-
-	@gen.coroutine
-	@cache(refresh_prefixes="")
-	def post(self, id=None):
-		return
