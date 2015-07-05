@@ -58,7 +58,8 @@ class Application(tornado.web.Application):
             (r"/", HomeHandler),
             (r"%s" % AppURL["session_create"], SessionHandler),
             (r"%s" % AppURL["auth_token"], AuthTokenHandler),
-            (r"%s" % AppURL["products"], ProductHandler)
+            (r"%s" % AppURL["product"], ProductHandler),
+            (r"%s" % AppURL["products"], ProductHandler),
         ]
 
         super(Application, self).__init__(AppHandlers, **tornado_settings)

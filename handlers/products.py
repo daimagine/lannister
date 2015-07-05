@@ -1,6 +1,5 @@
 #tornado
 import tornado.web
-import json
 from tornado import gen
 import collections
 from lannister.utils.cache import cache
@@ -49,6 +48,7 @@ class ProductHandler(CacheJSONHandler):
 				serializer = ProductSchema()
 				self.response['product'] = serializer.dump(product).data
 
+			logger.debug(self.response)
 			self.write_json()
 
 		except Exception as error:

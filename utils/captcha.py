@@ -1,5 +1,5 @@
 import urllib
-import json
+import simplejson as json
 from urllib2 import Request, urlopen, URLError, HTTPError
 from lannister.utils.logs import logger
 

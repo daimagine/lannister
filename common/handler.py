@@ -1,6 +1,6 @@
 # tornado
 import tornado.web
-import json
+import simplejson as json
 # cache
 from lannister.utils.cache import CacheMixin
 # logging
