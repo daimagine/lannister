@@ -5,7 +5,7 @@ import collections
 from lannister.utils.cache import cache
 from lannister.utils.logs import logger
 from lannister.utils.parse import ParseUtil
-from lannister.common.handler import JSONHandler, CacheJSONHandler
+from lannister.common.handler import JSONHandler, CacheJSONHandler, auth
 
 from stark.models.product import Product, ProductSchema
 from lannister.utils.caching_query import FromCache, RelationshipCache
@@ -15,6 +15,7 @@ from lannister.utils.routes import AppURL
 
 class ProductHandler(CacheJSONHandler):
 	@gen.coroutine
+	@auth()
 	@cache()
 	def get(self, id=None):
 		try:

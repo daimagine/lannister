@@ -76,7 +76,7 @@ class SessionHandler(JSONHandler):
         except Exception, error:
             self.db.rollback()
             logger.exception(error)
-            self.write_error(status_code=500, error='authentication failed');
+            self.write_error(status_code=500, error='Authentication Failed');
 
 
 class AuthenticationException(Exception):
