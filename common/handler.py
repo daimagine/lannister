@@ -63,6 +63,8 @@ class JSONHandler(BaseHandler):
                 message = 'Unsupported Media Type'
                 self.send_error(415, message=message)  # Bad Request
 
+        # listen for db changes
+
         # Set up response dictionary
         self.response = dict()
         self.set_default_header()

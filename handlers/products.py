@@ -2,7 +2,7 @@
 import tornado.web
 from tornado import gen
 import collections
-from lannister.utils.cache import cache
+from lannister.utils.cache import cache, cache_refresh
 from lannister.utils.logs import logger
 from lannister.utils.parse import ParseUtil
 from lannister.common.handler import JSONHandler, CacheJSONHandler, auth
@@ -22,6 +22,7 @@ class ProductHandler(CacheJSONHandler):
 			logger.debug('get products')
 			logger.debug(self.request.arguments)
 
+			self.db.begin()
 			criteria = self.db.query(Product)
 
 			# filtering
@@ -49,9 +50,48 @@ class ProductHandler(CacheJSONHandler):
 				serializer = ProductSchema()
 				self.response['product'] = serializer.dump(product).data
 
+			self.db.commit()
 			logger.debug(self.response)
 			self.write_json()
 
 		except Exception as error:
+			self.db.rollback()
 			logger.exception(error.message)
 			self.write_error(status_code=500, error='Failed to fetch data');
+
+	@gen.coroutine
+	def post(self, id):
+		try:
+			self.db.begin()
+			logger.debug('post products %s' % id)
+			
+			# extract body
+			productParam = self.request.data['product']
+			logger.debug(productParam)
+
+			criteria = self.db.query(Product).filter(Product.id == id)
+			product = criteria.one()
+
+			# update affiliate
+			product.is_affiliate_ready = productParam['is_affiliate_ready']
+			product.affiliate_fee = productParam['affiliate_fee']
+
+			# save product
+			self.db.commit()
+
+			# return response
+			serializer = ProductSchema()
+			self.response['product'] = serializer.dump(product).data
+			self.response['message'] = 'Update product success'
+			self.response['success'] = True
+
+			# refresh cache
+			cache_refresh(self, [self.request.path, AppURL["products"]])
+
+			logger.debug(self.response)
+			self.write_json()
+
+		except Exception, error:
+			self.db.rollback()
+			logger.exception(error)
+			self.write_error(status_code=500, error='Failed to save product')
