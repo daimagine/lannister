@@ -8,6 +8,8 @@ from lannister.utils.parse import ParseUtil
 from lannister.common.handler import JSONHandler, CacheJSONHandler, auth
 
 from stark.models.product import Product, ProductSchema
+from stark.models.affiliate import Affiliate
+from stark.models.customer import Customer
 from lannister.utils.caching_query import FromCache, RelationshipCache
 
 import re
@@ -23,7 +25,7 @@ class ProductHandler(CacheJSONHandler):
 			logger.debug(self.request.arguments)
 
 			self.db.begin()
-			criteria = self.db.query(Product)
+			criteria = self.db.query(Product).distinct(Product.id).group_by(Product.id)
 
 			# filtering
 			if id == None:
@@ -38,6 +40,13 @@ class ProductHandler(CacheJSONHandler):
 					customer_id = self.get_argument('customer')
 					logger.debug('customer criteria: %s' % customer_id)
 					criteria = criteria.filter(Product.customer_id == customer_id)
+
+				# affiliator
+				if 'affiliator' in self.request.arguments:
+					customer_id = self.get_argument('affiliator')
+					logger.debug('affiliator criteria: %s' % customer_id)
+					criteria = criteria.join(Affiliate).join(Affiliate.customer)
+					criteria = criteria.filter(Customer.id == customer_id)
 
 				products = criteria.all()
 				serializer = ProductSchema(many= True)
@@ -75,6 +84,7 @@ class ProductHandler(CacheJSONHandler):
 			# update affiliate
 			product.is_affiliate_ready = productParam['is_affiliate_ready']
 			product.affiliate_fee = productParam['affiliate_fee']
+			product.affiliate_fee_type = productParam['affiliate_fee_type']
 
 			# save product
 			self.db.commit()
