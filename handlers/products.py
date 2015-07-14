@@ -7,13 +7,15 @@ from lannister.utils.logs import logger
 from lannister.utils.parse import ParseUtil
 from lannister.common.handler import JSONHandler, CacheJSONHandler, auth
 
-from stark.models.product import Product, ProductSchema
+from stark.models.schema import ProductSchema
+from stark.models.product import Product
 from stark.models.affiliate import Affiliate
 from stark.models.customer import Customer
 from lannister.utils.caching_query import FromCache, RelationshipCache
 
 import re
 from lannister.utils.routes import AppURL
+
 
 class ProductHandler(CacheJSONHandler):
 	@gen.coroutine
@@ -69,7 +71,7 @@ class ProductHandler(CacheJSONHandler):
 			self.write_error(status_code=500, error='Failed to fetch data');
 
 	@gen.coroutine
-	def post(self, id):
+	def put(self, id):
 		try:
 			self.db.begin()
 			logger.debug('post products %s' % id)

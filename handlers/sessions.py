@@ -11,7 +11,8 @@ import time
 import calendar
 from lannister.utils.captcha import verify_captcha
 # schema
-from stark.models.customer import Customer, CustomerAuthSchema
+from stark.models.customer import Customer
+from stark.models.schema import CustomerAuthSchema
 
 
 class SessionHandler(JSONHandler):

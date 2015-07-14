@@ -10,7 +10,7 @@ from lannister.utils.logs import logger
 # json handler
 from lannister.common.handler import JSONHandler
 # sql alchemy
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, sql
 from sqlalchemy.orm import scoped_session, sessionmaker
 # dogpiles
 from dogpile.cache.region import make_region
@@ -23,6 +23,8 @@ from lannister.utils.routes import AppURL
 from lannister.handlers.products import ProductHandler
 from lannister.handlers.sessions import SessionHandler
 from lannister.handlers.tokens import AuthTokenHandler
+from lannister.handlers.search_affiliates import SearchAffiliatesHandler
+from lannister.handlers.affiliates import AffiliateHandler
 
 
 class Application(tornado.web.Application):
@@ -52,6 +54,7 @@ class Application(tornado.web.Application):
 
         db_engine = create_engine(dsn, echo=True)
         self.db = scoped_session(sessionmaker(bind=db_engine, autocommit=True))
+        self.sql = sql
 
         # Match url to preffered Handlers
         AppHandlers = [
@@ -60,6 +63,8 @@ class Application(tornado.web.Application):
             (r"%s" % AppURL["auth_token"], AuthTokenHandler),
             (r"%s" % AppURL["product"], ProductHandler),
             (r"%s" % AppURL["products"], ProductHandler),
+            (r"%s" % AppURL["search_affiliates"], SearchAffiliatesHandler),
+            (r"%s" % AppURL["affiliates"], AffiliateHandler),
         ]
 
         super(Application, self).__init__(AppHandlers, **tornado_settings)
