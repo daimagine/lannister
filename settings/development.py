@@ -26,3 +26,6 @@ LOG_LEVEL = logging.DEBUG
 USE_SYSLOG = False
 SYSLOG_TAG = "lannister.dev"
 SYSLOG_FACILITY = logging.handlers.SysLogHandler.LOG_LOCAL2
+
+# Affiliate subdomain
+AFFILIATE_URL = "aff.jualio.com"

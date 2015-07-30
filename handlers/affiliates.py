@@ -6,6 +6,11 @@ from lannister.utils.cache import cache, cache_refresh
 from lannister.utils.logs import logger
 from lannister.utils.parse import ParseUtil
 from lannister.common.handler import JSONHandler, CacheJSONHandler, auth
+# settings
+from lannister.settings import AFFILIATE_URL
+# hashids
+from hashids import Hashids
+hashids = Hashids()
 
 from stark.models.schema import ProductSchema, AffiliateInfoSchema
 from stark.models.product import Product
@@ -100,7 +105,9 @@ class AffiliateHandler(JSONHandler):
 
 			# create new affiliate
 			affiliate = Affiliate(product=product, customer=customer)
-			affiliate.product_page = product.product_page
+			# create new product page with hashid
+			newid = hashids.encode(product.id)
+			affiliate.product_page = "%s/%s" % (AFFILIATE_URL, newid)
 			affiliate.headline = product.headline
 			product.affiliates.append(affiliate)
 
