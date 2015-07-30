@@ -71,6 +71,7 @@ class ProductHandler(CacheJSONHandler):
 			self.write_error(status_code=500, error='Failed to fetch data');
 
 	@gen.coroutine
+	@auth()
 	def put(self, id):
 		try:
 			self.db.begin()
