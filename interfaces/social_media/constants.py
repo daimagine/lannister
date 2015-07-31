@@ -1,0 +1,5 @@
+# Social Media constants
+TWITTER = 1
+FACEBOOK = 2
+FACEBOOK_PAGE = 3
+INSTAGRAM = 4

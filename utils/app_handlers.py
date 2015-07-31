@@ -11,6 +11,7 @@ from lannister.handlers.tokens import AuthTokenHandler
 from lannister.handlers.search_affiliates import SearchAffiliatesHandler
 from lannister.handlers.affiliates import AffiliateHandler
 from lannister.handlers.customer_socmeds import CustomerSocmedHandler
+from lannister.handlers.socmed_posts import SocmedPostHandler
 
 
 class HomeHandler(JSONHandler):
@@ -32,4 +33,5 @@ AppHandlers = [
     (r"%s" % AppURL["affiliate"], AffiliateHandler),
     (r"%s" % AppURL["affiliates"], AffiliateHandler),
     (r"%s" % AppURL["customer_socmeds"], CustomerSocmedHandler),
+    (r"%s" % AppURL["socmed_posts"], SocmedPostHandler),
 ]        

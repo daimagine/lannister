@@ -21,7 +21,7 @@ import re
 from lannister.utils.routes import AppURL, api_version
 
 
-class AffiliateHandler(JSONHandler):
+class AffiliateHandler(CacheJSONHandler):
 
 	def refresh_cache(self, productId=None):
 		# refresh cache
