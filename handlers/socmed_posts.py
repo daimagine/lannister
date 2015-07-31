@@ -11,7 +11,7 @@ from lannister.settings import AFFILIATE_URL
 # social medias
 from lannister.interfaces.social_media import constants as SOCIAL_MEDIA
 from lannister.interfaces.social_media.exceptions import SocmedPostException
-from lannister.interfaces.social_media.twitter import TwitterInterface
+from lannister.interfaces.social_media.base import SocmedInterface
 
 from stark.models.schema import ProductSchema, AffiliateInfoSchema
 from stark.models.product import Product
@@ -81,7 +81,7 @@ class SocmedPostHandler(CacheJSONHandler):
 			for socmed in socmed_accounts:
 				logger.debug('post to socmed account %s' % socmed.social_name)
 				if socmed.social_media.id == SOCIAL_MEDIA.TWITTER:
-					TwitterInterface.post(socmed, headline, product_page)
+					SocmedInterface.post(socmed, headline, product_page)
 
 			# return response
 			self.response['message'] = 'Post to social media success'
