@@ -16,6 +16,4 @@ class SocmedInterface(object):
 		logger.debug('SocmedInterface: load interface %s %s' % (plugin_package, plugin))
 		module = importlib.import_module(plugin_package)
 		interface = getattr(module, plugin)
-		response = interface.post(socmed_account, headline, product_page)
-
-		return response
+		interface.post(socmed_account, headline, product_page)

@@ -96,7 +96,7 @@ class SocmedPostHandler(CacheJSONHandler):
 		except SocmedPostException, error:
 			self.db.rollback()
 			logger.exception(error)
-			self.write_error(status_code=500, error='Failed to post to social media')
+			self.write_error(status_code=500, error=error.message)
 
 		except Exception, error:
 			self.db.rollback()
