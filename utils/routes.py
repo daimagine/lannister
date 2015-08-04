@@ -18,3 +18,5 @@ AppURL["affiliate"] = "%s/affiliates/([0-9]+)" % api_version
 AppURL["affiliates"] = "%s/affiliates" % api_version
 AppURL["customer_socmeds"] = "%s/socmed_accounts" % api_version
 AppURL["socmed_posts"] = "%s/socmed_posts" % api_version
+AppURL["twitter_redirect_url"] = "%s/socmeds/twitter/actions/redirect_url" % api_version
+AppURL["twitter_verify_account"] = "%s/socmeds/twitter/actions/verify" % api_version
