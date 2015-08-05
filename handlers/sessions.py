@@ -12,7 +12,7 @@ import calendar
 from lannister.utils.captcha import verify_captcha
 # schema
 from stark.models.customer import Customer
-from stark.models.schema import CustomerAuthSchema
+from stark.models.schema import CustomerSchema
 
 
 class SessionHandler(JSONHandler):
@@ -54,7 +54,7 @@ class SessionHandler(JSONHandler):
             self.db.commit()
 
             # encode customer and client_token into jwt format
-            serializer = CustomerAuthSchema()
+            serializer = CustomerSchema()
             customerSchema = serializer.dump(customer).data
             
             payload = {
