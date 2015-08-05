@@ -11,6 +11,7 @@ from stark.models.schema import ProductSchema
 from stark.models.product import Product
 from stark.models.affiliate import Affiliate
 from stark.models.customer import Customer
+from stark.models.images import ProductImage
 from lannister.utils.caching_query import FromCache, RelationshipCache
 
 import re
@@ -28,6 +29,9 @@ class ProductHandler(CacheJSONHandler):
 
 			self.db.begin()
 			criteria = self.db.query(Product).distinct(Product.id).group_by(Product.id)
+
+			# lazy load
+			criteria = criteria.join(ProductImage)
 
 			# filtering
 			if id == None:
