@@ -24,5 +24,5 @@ SYSLOG_TAG = "lannister.dev"
 SYSLOG_FACILITY = logging.handlers.SysLogHandler.LOG_LOCAL2
 
 # Affiliate subdomain
-AFFILIATE_URL = "a.jualio.com"
+AFFILIATE_URL = "http://a.jual.io"
 TWEET_HEADLINE_LENGTH = 115

@@ -72,7 +72,7 @@ class ProductHandler(CacheJSONHandler):
 		except Exception as error:
 			self.db.rollback()
 			logger.exception(error.message)
-			self.write_error(status_code=500, error='Failed to fetch data');
+			self.write_error(status_code=500, error='Failed to fetch data')
 
 	@gen.coroutine
 	@auth()

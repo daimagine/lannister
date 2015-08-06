@@ -6,6 +6,7 @@ from lannister.common.handler import JSONHandler
 from lannister.utils.routes import AppURL
 # resource handlers
 from lannister.handlers.products import ProductHandler
+from lannister.handlers.products_hashed import ProductHashHandler
 from lannister.handlers.sessions import SessionHandler
 from lannister.handlers.tokens import AuthTokenHandler
 from lannister.handlers.search_affiliates import SearchAffiliatesHandler
@@ -30,6 +31,7 @@ AppHandlers = [
     (r"%s" % AppURL["session_create"], SessionHandler),
     (r"%s" % AppURL["auth_token"], AuthTokenHandler),
     (r"%s" % AppURL["product"], ProductHandler),
+    (r"%s" % AppURL["product_hashed"], ProductHashHandler),
     (r"%s" % AppURL["products"], ProductHandler),
     (r"%s" % AppURL["search_affiliates"], SearchAffiliatesHandler),
     (r"%s" % AppURL["affiliate"], AffiliateHandler),
