@@ -8,6 +8,9 @@ from lannister.utils.parse import ParseUtil
 from lannister.common.handler import JSONHandler, CacheJSONHandler, auth
 # settings
 from lannister.settings import AFFILIATE_URL
+# hashids
+from hashids import Hashids
+hashids = Hashids()
 
 from stark.models.schema import ProductSchema, AffiliateInfoSchema
 from stark.models.product import Product
@@ -102,8 +105,11 @@ class AffiliateHandler(CacheJSONHandler):
 
 			# create new affiliate
 			affiliate = Affiliate(product=product, customer=customer)
+			
+			# create new token
+			token = hashids.encode(product.id, customer.id)
+
 			# create new product page with token
-			token = product.token
 			affiliate.product_page = "%s/%s" % (AFFILIATE_URL, token)
 			affiliate.headline = product.headline
 			product.affiliates.append(affiliate)
