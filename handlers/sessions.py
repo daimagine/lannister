@@ -11,7 +11,8 @@ import time
 import calendar
 from lannister.utils.captcha import verify_captcha
 # schema
-from stark.models.customer import Customer, CustomerAuthSchema
+from stark.models.customer import Customer
+from stark.models.schema import CustomerSchema
 
 
 class SessionHandler(JSONHandler):
@@ -53,7 +54,7 @@ class SessionHandler(JSONHandler):
             self.db.commit()
 
             # encode customer and client_token into jwt format
-            serializer = CustomerAuthSchema()
+            serializer = CustomerSchema()
             customerSchema = serializer.dump(customer).data
             
             payload = {
@@ -76,7 +77,7 @@ class SessionHandler(JSONHandler):
         except Exception, error:
             self.db.rollback()
             logger.exception(error)
-            self.write_error(status_code=500, error='authentication failed');
+            self.write_error(status_code=500, error='Authentication Failed');
 
 
 class AuthenticationException(Exception):

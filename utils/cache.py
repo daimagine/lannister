@@ -25,7 +25,7 @@ def cache(expires=7200, cache_enabled=True):
             handler.cache_enabled = cache_enabled
             try:
                 logger.debug('cache: cache_enabled is %s', cache_enabled)
-                key = handler._prefix(handler._generate_key(handler.request))
+                key = handler._generate_key(handler.request)
                 if handler.cache.exists(key) and cache_enabled:
                     logger.debug('return cache from redis %s' % key)
                     rv = pickle.loads(handler.cache.get(key))
@@ -39,7 +39,31 @@ def cache(expires=7200, cache_enabled=True):
                 return func(handler, *args, **kwargs)
         return wrapper
     return _func
- 
+
+
+def generatePrefixKey(prefix):
+    logger.debug('generate key for prefix %s' % prefix)
+    def _prefix(key):
+        prefixed = "cache:%s" % key
+        return prefixed
+    return _prefix(sha1(prefix).hexdigest())
+
+
+def cache_refresh(handler, refresh_prefixes=[]):
+    """
+    Refresh cache with preffered prefix keys
+    """
+    try:
+        prefixes = set(refresh_prefixes)
+        for prefix in prefixes:
+            key = generatePrefixKey(prefix)
+            logger.debug('refresh cache with prefix key: %s' % key)
+            handler.application.cache.delprefix(key)
+    except Exception, err:
+        logger.exception(err)
+        logger.debug('refresh cache with prefix key [%s] failed: %s', (key, err.message))
+
+
 class CacheMixin(object):
  
     @property
@@ -55,12 +79,8 @@ class CacheMixin(object):
  
     def _generate_key(self, request):
         key = sha1(pickle.dumps(request.arguments)).hexdigest()
-        prefix = sha1(request.path).hexdigest()
+        prefix = generatePrefixKey(request.path)
         return "%s:%s" % (prefix, key)
- 
-    def _prefix(self, key):
-        prefixed = "cache:%s" % key
-        return prefixed
  
     def write_cache(self, chunk):
         logger.debug('write cache')
@@ -75,28 +95,10 @@ class CacheMixin(object):
                 key = self._generate_key(self.request)
                 logger.debug('write cache to redis %s' % key)
                 if hasattr(self, "expires"):
-                    self.cache.set(self._prefix(key), pickled, self.expires)
+                    self.cache.set(key, pickled, self.expires)
                 else:
-                    self.cache.set(self._prefix(key), pickled)
+                    self.cache.set(key, pickled)
         super(CacheMixin, self).write(chunk)
-
-    def cache_refresh(self, refresh_prefixes):
-        """
-        Refresh the functions cache data in a new thread. Starts refreshing only
-        after the session was committed so all database data is available.
-        """
-
-        @event.listens_for(session, "after_commit")
-        def do_refresh(session):
-            """
-            TODO: create auto commit listener for auto flush
-            flush by entity single or multiple key 
-            get the key from from auto_flush annotation
-            ex: product:1 (single), products (multiple)
-            """
-            for prefix in refresh_prefixes:
-                logger.debug('refresh prefix: %s' % prefix)
-            return
  
  
 class CacheBackend(object):
@@ -141,6 +143,13 @@ class RedisCacheBackend(CacheBackend):
  
     def delitem(self, key):
         self.redis.delete(key)
+
+    def delprefix(self, prefix):
+        prefixed = prefix + "*"
+        keys = self.redis.keys(prefixed)
+        for key in keys:
+            logger.debug('remove cache %s' % key)
+            self.redis.delete(key)
  
     def exists(self, key):
         return bool(self.redis.exists(key))

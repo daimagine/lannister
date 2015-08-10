@@ -1,6 +1,8 @@
 # tornado
 import tornado.web
+import functools
 import simplejson as json
+from datetime import datetime
 # cache
 from lannister.utils.cache import CacheMixin
 # logging
@@ -13,7 +15,26 @@ def auth(required=False):
     def _func(func):
         @functools.wraps(func)
         def wrapper(handler, *args, **kwargs):
-            handler.auth_required = False
+            auth_required = required
+            logger.debug('BaseHandler: auth_required is %s', auth_required)
+            if auth_required:
+                try:
+                    client_token = handler.request.headers['Authorization']
+                    # find customer by client_token and valid time criteria
+                    handler.db.begin()
+                    criteria = handler.db.query(Customer)
+                    logger.debug('find customer by client_token: %s' % client_token)
+                    criteria = criteria.filter(Customer.client_token == client_token)
+                    criteria = criteria.filter(Customer.client_token_valid_time > datetime.utcnow())
+                    # find or fail customer
+                    customer = criteria.one()
+                    handler.db.commit()
+                except Exception, err:
+                    handler.db.rollback()
+                    logger.exception(err)
+                    message = 'Authentication Failed'
+                    self.send_error(400, message=message)
+
             return func(handler, *args, **kwargs)
         return wrapper
     return _func
@@ -23,20 +44,11 @@ class BaseHandler(tornado.web.RequestHandler):
     @property
     def db(self):
         return self.application.db
+        
+    @property
+    def sql(self):
+        return self.application.sql
 
-    # def prepare(self):
-    #     auth_required = True
-    #     if hasattr(self, "auth_required"):
-    #         auth_required = self.auth_required
-    #     logger.debug('prepare: auth_required is %s', auth_required)
-
-    #     if auth_required:
-    #         customer_id = self.request.header['email']
-    #         criteria = self.db.query(Customer)
-    #         logger.debug('find customer by criteria: %s' % email)
-    #         criteria = criteria.filter(Customer.email == email)
-    #         # find or fail customer
-    #         customer = criteria.one()
 
 
 class JSONHandler(BaseHandler):
@@ -55,6 +67,8 @@ class JSONHandler(BaseHandler):
                 logger.exception(e)
                 message = 'Unsupported Media Type'
                 self.send_error(415, message=message)  # Bad Request
+
+        # listen for db changes
 
         # Set up response dictionary
         self.response = dict()

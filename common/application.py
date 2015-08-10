@@ -7,10 +7,8 @@ import redis
 from lannister import settings
 # logging
 from lannister.utils.logs import logger
-# json handler
-from lannister.common.handler import JSONHandler
 # sql alchemy
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, sql
 from sqlalchemy.orm import scoped_session, sessionmaker
 # dogpiles
 from dogpile.cache.region import make_region
@@ -18,11 +16,7 @@ from lannister.utils.caching_query import query_callable
 from hashlib import md5
 
 # routes
-from lannister.utils.routes import AppURL
-# resource handlers
-from lannister.handlers.products import ProductHandler
-from lannister.handlers.sessions import SessionHandler
-from lannister.handlers.tokens import AuthTokenHandler
+from lannister.utils.app_handlers import AppHandlers
 
 
 class Application(tornado.web.Application):
@@ -52,15 +46,7 @@ class Application(tornado.web.Application):
 
         db_engine = create_engine(dsn, echo=True)
         self.db = scoped_session(sessionmaker(bind=db_engine, autocommit=True))
-
-        # Match url to preffered Handlers
-        AppHandlers = [
-            (r"/", HomeHandler),
-            (r"%s" % AppURL["session_create"], SessionHandler),
-            (r"%s" % AppURL["auth_token"], AuthTokenHandler),
-            (r"%s" % AppURL["product"], ProductHandler),
-            (r"%s" % AppURL["products"], ProductHandler),
-        ]
+        self.sql = sql
 
         super(Application, self).__init__(AppHandlers, **tornado_settings)
 
@@ -74,11 +60,3 @@ def md5_key_mangler(key):
     logger.debug('App: md5_key_mangler ')
     logger.debug(key)
     return key
-
-
-class HomeHandler(JSONHandler):
-
-    def get(self):
-        logger.info('Hello from Jualio')
-        self.response['title'] = "Jualio API Service"
-        self.write()
