@@ -83,4 +83,5 @@ def restart_server():
 		        	with prefix('add2virtualenv %(base_path)s' % env):
 			        	sudo('supervisorctl shutdown')
 			        	sudo('supervisord -c %(path)s/supervisor/production.conf' % env)
+			        	sudo('cp %(path)s/supervisor/ng_lannister.conf /etc/nginx/conf.d/ng_lannister.conf' % env)
 			        	sudo('service nginx restart')
