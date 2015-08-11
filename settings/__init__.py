@@ -34,5 +34,4 @@ def env():
 	return __env__
 
 # setting log
-print(LOGGING_CONFIG)
 logging.config.dictConfig(LOGGING_CONFIG)	

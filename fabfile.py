@@ -82,7 +82,6 @@ def restart_server():
 		        with cd('%(path)s' % env), prefix('workon jualio'):
 		        	with prefix('add2virtualenv %(base_path)s' % env):
 			        	sudo('kill -9 `cat /var/run/supervisord.pid`')
-			        	sudo('rm /tmp/supervisor.sock')
 			        	sudo('rm /var/run/supervisor.sock')
 			        	sudo('rm /var/run/supervisord.pid')
 			        	sudo('supervisord -c %(path)s/supervisor/production.conf' % env)
