@@ -11,7 +11,7 @@
 # under the License.
 
 import logging
-
 from lannister import settings
+
 
 logger = logging.getLogger("lannister")
