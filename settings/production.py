@@ -12,7 +12,7 @@ DATABASE = {
     'HOST': 'localhost',        # Server IP. Default: localhost
     'PORT': '5432',             # PostgreSQL default: 5432
     'USER': 'postgres',         # User that has access to the DB
-    'PASSWORD': 'postgres',     # Password for the user
+    'PASSWORD': 'ju4l10',     	# Password for the user
 }
 
 # Default version of the API
