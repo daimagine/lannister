@@ -1,5 +1,7 @@
 import os
 import logging
+from tornado.log import LogFormatter as TornadoLogFormatter
+
 
 # Add the current directory to the python path
 BASE_DIR = os.path.dirname(os.path.dirname(__file__))
@@ -22,10 +24,46 @@ SERVER_PORT = "8000"
 
 # Log configuration
 DEBUG_ENABLED = True
-LOG_LEVEL = logging.DEBUG
-USE_SYSLOG = False
-SYSLOG_TAG = "lannister.dev"
-SYSLOG_FACILITY = logging.handlers.SysLogHandler.LOG_LOCAL2
+LOG_FILE = '%s/%s' % (LOG_DIR, 'lannister.log')
+LOGGING_CONFIG = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'formatters': {
+        'standard': {
+            'format': '[%(process)d: %(levelname).1s %(asctime)s %(module)s:%(lineno)d] '
+                    '%(message)s',
+            'datefmt': "%Y-%m-%d %H:%M:%S",
+        },
+        'colored': {
+        	'()': TornadoLogFormatter,
+            'format': '%(color)s[%(process)d: %(levelname).1s %(asctime)s %(module)s:%(lineno)d]%(end_color)s '
+                    '%(message)s',
+            'datefmt': "%Y-%m-%d %H:%M:%S",
+            'color': True
+        }
+    },
+    'handlers': {
+        'console': {
+            'level': 'DEBUG',
+            'formatter': 'colored',
+            'class': 'logging.StreamHandler',
+        },
+        'rotate_file': {
+            'level': 'DEBUG',
+            'formatter': 'standard',
+            'class': 'logging.handlers.TimedRotatingFileHandler',
+            'when': 'midnight',
+            'filename': LOG_FILE,
+            'encoding': 'utf8'
+        }
+    },
+    'loggers': {
+        'lannister': {
+            'handlers': ['console', 'rotate_file'],
+            'level': 'DEBUG',
+        },
+    }
+}
 
 # Affiliate subdomain
 AFFILIATE_URL = "http://a.jual.io"

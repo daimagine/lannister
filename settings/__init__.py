@@ -10,36 +10,29 @@
 # License for the specific language governing permissions and limitations
 # under the License.
 
-DEBUG = True
-STAGING = False
+import os
+import logging
+import logging.config
 
+
+__env__ = os.getenv('DEPLOYMENT_TARGET', 'dev')
 __version__ = '1'
 __codename__ = 'Lannister'
 __status__ = 'alpha'
 __docs__ = 'http://docs.jualio.com/api/v1/docs.html'
 
-if DEBUG and not STAGING:
-    from .development import *
-
-elif STAGING:
-    from .staging import *
-
-elif not DEBUG and not STAGING:
+if __env__ == 'production':
     from .production import *
 
+elif __env__ == 'staging':
+    from .staging import *
 
-from lannister.logconfig.logconfig import initialize_logging
+else:
+    from .development import *
 
-# See PEP 391 and logconfig for formatting help.  Each section of LOGGERS
-# will get merged into the corresponding section of log_settings.py.
-# Handlers and log levels are set up automatically based on LOG_LEVEL and DEBUG
-# unless you set them here.  Messages will not propagate through a logger
-# unless propagate: True is set.
-LOGGERS = {
-   'loggers': {
-        'lannister': {},
-    },
-}
+def env():
+	return __env__
 
-initialize_logging(SYSLOG_TAG, SYSLOG_FACILITY, LOGGERS,
-        LOG_LEVEL, USE_SYSLOG)
+# setting log
+print(LOGGING_CONFIG)
+logging.config.dictConfig(LOGGING_CONFIG)	
