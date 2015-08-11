@@ -81,7 +81,12 @@ def restart_server():
 		    with prefix('source /usr/local/bin/virtualenvwrapper.sh'):
 		        with cd('%(path)s' % env), prefix('workon jualio'):
 		        	with prefix('add2virtualenv %(base_path)s' % env):
-			        	sudo('supervisorctl shutdown')
+			        	sudo('kill -9 `cat /var/run/supervisord.pid`')
+			        	sudo('rm /tmp/supervisor.sock')
+			        	sudo('rm /var/run/supervisor.sock')
+			        	sudo('rm /var/run/supervisord.pid')
 			        	sudo('supervisord -c %(path)s/supervisor/production.conf' % env)
 			        	sudo('cp %(path)s/supervisor/ng_lannister.conf /etc/nginx/conf.d/ng_lannister.conf' % env)
 			        	sudo('service nginx restart')
+
+
