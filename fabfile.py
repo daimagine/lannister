@@ -7,7 +7,7 @@ def production():
 	env.hosts = ['128.199.193.7']
 	env.base_path = '/home/adi/apps/py'
 	env.path = env.base_path + '/lannister'
-	env.git = 'https://github.com/daimagine/lannister.git'l
+	env.git = 'https://github.com/daimagine/lannister.git'
 	env.branch = 'master'
 
 def setup():
@@ -40,6 +40,7 @@ def install_requirements():
 	sudo("apt-get install python-pip")
 	sudo("pip install virtualenv")
 	sudo("pip install virtualenvwrapper")
+	run("pip install supervisor")
 	with cd('$HOME'):
 		run("virtualenv --no-site-packages .virtualenvs")
 	with prefix('WORKON_HOME=$HOME/.virtualenvs'):
@@ -51,7 +52,9 @@ def install_requirements():
 def restart_server():
 	"""Restart the web server"""
 	with settings(warn_only=True):
-		sudo('kill -9 `cat /tmp/project-master_helpmamme.pid`')
-		sudo('rm /tmp/project-master_helpmamme.pid /tmp/uwsgi_helpmamme.sock')
-		run('cd %(path)s/releases/current; %(path)s/bin/uwsgi --ini %(path)s/releases/current/uwsgi.ini' % env)
-		sudo('/etc/init.d/nginx restart')
+		with prefix('WORKON_HOME=$HOME/.virtualenvs'):
+		    with prefix('source /usr/local/bin/virtualenvwrapper.sh'):
+		        with cd('%(path)s' % env), prefix('workon jualio'):
+		        	sudo('supervisorctl shutdown')
+		        	sudo('supervisord -c supervisor/production.conf')
+					# sudo('service nginx restart')
