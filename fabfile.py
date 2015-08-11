@@ -4,11 +4,19 @@ def production():
 	"""Production environment settings"""
 	env.settings = 'production'
 	env.user = 'adi'
+	env.password = 'adi!@#'
 	env.hosts = ['128.199.193.7']
 	env.base_path = '/home/adi/apps/py'
 	env.path = env.base_path + '/lannister'
 	env.git = 'https://github.com/daimagine/lannister.git'
 	env.branch = 'master'
+	env.dependencies = [
+		{
+			'name': 'stark',
+			'git': 'https://github.com/daimagine/stark.git',
+			'branch': 'master'
+		}
+	]
 
 def setup():
 	"""
@@ -24,13 +32,29 @@ def deploy():
 	checkout_latest()
 	restart_server()
 
+def clone_dependencies():
+	"""Do initial clone of the git repo dependencies"""
+	with cd('%(base_path)s' % env):
+		for repo in env.dependencies:
+			run('git clone %(git)s %(name)s' % repo)
+
 def clone_repo():
 	"""Do initial clone of the git repo"""
+	clone_dependencies()
 	with cd('%(base_path)s' % env):
 		run('git clone %(git)s' % env)
 
+def checkout_dependencies():
+	"""Pull dependencies repo project"""
+	with cd('%(base_path)s' % env):
+		for repo in env.dependencies:
+			with cd('%(name)s' % repo):
+				run("git checkout %(branch)s" % repo)
+				run("git pull --rebase")
+
 def checkout_latest():
-	"""Pull the latest code into the git repo and copy to a timestamped release directory"""
+	"""Pull the latest code into the git repo"""
+	checkout_dependencies()
 	with cd('%(path)s' % env):
 		run("git checkout %(branch)s" % env)
 		run("git pull --rebase")
@@ -41,6 +65,7 @@ def install_requirements():
 	sudo("pip install virtualenv")
 	sudo("pip install virtualenvwrapper")
 	run("pip install supervisor")
+	sudo("mkdir -p /var/log/supervisord")
 	with cd('$HOME'):
 		run("virtualenv --no-site-packages .virtualenvs")
 	with prefix('WORKON_HOME=$HOME/.virtualenvs'):
@@ -55,6 +80,7 @@ def restart_server():
 		with prefix('WORKON_HOME=$HOME/.virtualenvs'):
 		    with prefix('source /usr/local/bin/virtualenvwrapper.sh'):
 		        with cd('%(path)s' % env), prefix('workon jualio'):
-		        	sudo('supervisorctl shutdown')
-		        	sudo('supervisord -c supervisor/production.conf')
-					# sudo('service nginx restart')
+		        	with prefix('add2virtualenv %(base_path)s' % env):
+			        	sudo('supervisorctl shutdown')
+			        	sudo('supervisord -c %(path)s/supervisor/production.conf' % env)
+			        	sudo('service nginx restart')
