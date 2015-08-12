@@ -68,3 +68,6 @@ LOGGING_CONFIG = {
 # Affiliate subdomain
 AFFILIATE_URL = "http://a.jual.io"
 TWEET_HEADLINE_LENGTH = 115
+
+# Captcha
+CAPTCHA_SECRET_KEY = "6LfKLQsTAAAAABJ-szIiHiuwW2ETBdGNDQc5ikVj"

@@ -2,12 +2,13 @@ import urllib
 import simplejson as json
 from urllib2 import Request, urlopen, URLError, HTTPError
 from lannister.utils.logs import logger
+from lannister import settings
 
 
 def verify_captcha(captcha):
     try:
         captchaURL = "https://www.google.com/recaptcha/api/siteverify"
-        secret = "6Lc4zggTAAAAAIAO8HwV79QEIhZGaU5YjqtWKihu"
+        secret = settings.CAPTCHA_SECRET_KEY
 
         data = urllib.urlencode({
         	'secret': secret,
