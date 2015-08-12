@@ -65,5 +65,5 @@ LOGGING_CONFIG = {
 }
 
 # Affiliate subdomain
-AFFILIATE_URL = "http://a.jual.dev"
+AFFILIATE_URL = "http://dev.a.jual.io"
 TWEET_HEADLINE_LENGTH = 115
