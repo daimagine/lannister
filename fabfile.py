@@ -1,20 +1,36 @@
 from fabric.api import *
 
-def production():
-	"""Production environment settings"""
-	env.settings = 'production'
+def staging():
+	"""Development server staging environment settings"""
+	env.settings = 'staging'
 	env.user = 'adi'
-	env.password = 'adi!@#'
 	env.hosts = ['128.199.193.7']
 	env.base_path = '/home/adi/apps/py'
 	env.path = env.base_path + '/lannister'
 	env.git = 'https://github.com/daimagine/lannister.git'
-	env.branch = 'master'
+	env.branch = 'develop'
 	env.dependencies = [
 		{
 			'name': 'stark',
 			'git': 'https://github.com/daimagine/stark.git',
-			'branch': 'master'
+			'branch': 'develop'
+		}
+	]
+
+def production():
+	"""Production environment settings"""
+	env.settings = 'production'
+	env.user = 'adi'
+	env.hosts = ['128.199.193.7']
+	env.base_path = '/home/adi/apps/py'
+	env.path = env.base_path + '/lannister'
+	env.git = 'https://github.com/daimagine/lannister.git'
+	env.branch = 'develop'
+	env.dependencies = [
+		{
+			'name': 'stark',
+			'git': 'https://github.com/daimagine/stark.git',
+			'branch': 'develop'
 		}
 	]
 
@@ -82,5 +98,6 @@ def restart_server():
 		        with cd('%(path)s' % env), prefix('workon jualio'):
 		        	with prefix('add2virtualenv %(base_path)s' % env):
 			        	sudo('supervisorctl shutdown')
-			        	sudo('supervisord -c %(path)s/supervisor/production.conf' % env)
+			        	sudo('supervisord -c %(path)s/deployment/supervisor/%(settings)s.conf' % env)
+			        	sudo('cp %(path)s/deployment/nginx/%(settings)s.conf /etc/nginx/conf.d/ng_lannister.conf' % env)
 			        	sudo('service nginx restart')
