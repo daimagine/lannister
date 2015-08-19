@@ -110,6 +110,7 @@ class AffiliateHandler(CacheJSONHandler):
 			token = hashids.encode(product.id, customer.id)
 
 			# create new product page with token
+			affiliate.token = token
 			affiliate.product_page = "%s/%s" % (AFFILIATE_URL, token)
 			affiliate.headline = product.headline
 			product.affiliates.append(affiliate)
