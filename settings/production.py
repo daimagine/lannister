@@ -69,3 +69,11 @@ TWEET_HEADLINE_LENGTH = 115
 
 # Captcha
 CAPTCHA_SECRET_KEY = "6LfKLQsTAAAAABJ-szIiHiuwW2ETBdGNDQc5ikVj"
+
+# Social Media constants
+SOCIAL_MEDIA = {
+    'TWITTER': 5,
+    'FACEBOOK': 6,
+    'FACEBOOK_PAGE': 7,
+    'INSTAGRAM': 8
+}
