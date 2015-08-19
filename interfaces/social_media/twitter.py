@@ -72,11 +72,12 @@ class TwitterInterface(object):
 			# get account info
 			api = tweepy.API(auth)
 			user = api.me()
+			logger.debug('Twitter account %s', user)
 
 			response['access_token'] = auth.access_token
 			response['access_token_secret'] = auth.access_token_secret
 			response['social_id'] = user.id
-			response['social_name'] = user.name
+			response['social_name'] = user.screen_name
 			response['image'] = user.profile_image_url
 
 			return response
