@@ -17,6 +17,7 @@ AppURL["products"] = "%s/products" % api_version
 AppURL["search_affiliates"] = "%s/affiliates/search" % api_version
 AppURL["affiliate"] = "%s/affiliates/([0-9]+)" % api_version
 AppURL["affiliates"] = "%s/affiliates" % api_version
+AppURL["customer_socmed"] = "%s/socmed_accounts/([0-9]+)" % api_version
 AppURL["customer_socmeds"] = "%s/socmed_accounts" % api_version
 AppURL["socmed_posts"] = "%s/socmed_posts" % api_version
 AppURL["twitter_redirect_url"] = "%s/socmeds/twitter/actions/redirect_url" % api_version

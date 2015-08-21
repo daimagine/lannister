@@ -36,6 +36,7 @@ AppHandlers = [
     (r"%s" % AppURL["affiliate_product"], AffiliateProductHandler),
     (r"%s" % AppURL["affiliate"], AffiliateHandler),
     (r"%s" % AppURL["affiliates"], AffiliateHandler),
+    (r"%s" % AppURL["customer_socmed"], CustomerSocmedHandler),
     (r"%s" % AppURL["customer_socmeds"], CustomerSocmedHandler),
     (r"%s" % AppURL["socmed_posts"], SocmedPostHandler),
     (r"%s" % AppURL["twitter_redirect_url"], AddTwitterAccountHandler),

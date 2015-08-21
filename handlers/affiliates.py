@@ -17,7 +17,6 @@ from stark.models.product import Product
 from stark.models.affiliate import Affiliate
 from stark.models.customer import Customer
 
-import re
 from lannister.utils.routes import AppURL, api_version
 
 

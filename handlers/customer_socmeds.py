@@ -12,10 +12,17 @@ from stark.models.customer import Customer
 from stark.models.customer_socmed_account import CustomerSocmedAccount
 from lannister.utils.caching_query import FromCache, RelationshipCache
 
-from lannister.utils.routes import AppURL
+from lannister.utils.routes import AppURL, api_version
 
 
 class CustomerSocmedHandler(CacheJSONHandler):
+
+	def refresh_cache(self, socmedAccountId=None):
+		# refresh cache
+		url = "%s/customer_socmeds/%s" % (api_version, socmedAccountId)
+		cache_refresh(self, [AppURL["customer_socmeds"], url])
+
+
 	@gen.coroutine
 	@auth()
 	@cache()
@@ -53,4 +60,38 @@ class CustomerSocmedHandler(CacheJSONHandler):
 		except Exception as error:
 			self.db.rollback()
 			logger.exception(error.message)
-			self.write_error(status_code=500, error='Failed to fetch data');
+			self.write_error(status_code=500, error='Failed to fetch data')
+
+
+	@gen.coroutine
+	@auth()
+	def delete(self, id):
+		try:
+			self.db.begin()
+			logger.debug('remove customer socmed accounts %s' % id)
+			
+			# get customer socmed account
+			criteria = self.db.query(CustomerSocmedAccount)
+			criteria = criteria.filter(CustomerSocmedAccount.id == id)
+			socmedAccount = criteria.one()
+
+			# remove customer socmed account
+			self.db.delete(socmedAccount)
+
+			# commit
+			self.db.commit()
+
+			# return response
+			self.response['message'] = 'Remove customer socmed account success'
+			self.response['success'] = True
+
+			# refresh cache
+			self.refresh_cache(socmedAccountId=id)
+
+			logger.debug(self.response)
+			self.write_json()
+
+		except Exception, error:
+			self.db.rollback()
+			logger.exception(error)
+			self.write_error(status_code=500, error='Failed to remove customer socmed account')
