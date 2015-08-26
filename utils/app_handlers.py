@@ -16,6 +16,7 @@ from lannister.handlers.socmed_posts import SocmedPostHandler
 from lannister.handlers.twitter.add_accounts import AddTwitterAccountHandler
 from lannister.handlers.users import UserHandler
 from lannister.handlers.reports.affiliate_sales import AffiliateSalesHandler
+from lannister.handlers.product_affiliate_info import ProductAffiliateInfoHandler
 
 class HomeHandler(JSONHandler):
 
@@ -43,4 +44,5 @@ AppHandlers = [
     (r"%s" % AppURL["twitter_verify_account"], AddTwitterAccountHandler),
     (r"%s" % AppURL["users"], UserHandler),
     (r"%s" % AppURL["affiliate_sales"], AffiliateSalesHandler),
+    (r"%s" % AppURL["product_affiliate_info"], ProductAffiliateInfoHandler),
 ]        

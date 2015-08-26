@@ -24,3 +24,4 @@ AppURL["twitter_redirect_url"] = "%s/socmeds/twitter/actions/redirect_url" % api
 AppURL["twitter_verify_account"] = "%s/socmeds/twitter/actions/verify" % api_version
 AppURL["users"] = "%s/users/([0-9]+)" % api_version
 AppURL["affiliate_sales"] = "%s/affiliate_sales/([0-9]+)" % api_version
+AppURL["product_affiliate_info"] = "%s/product_affiliate_info/([0-9]+)" % api_version
