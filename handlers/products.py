@@ -14,7 +14,6 @@ from stark.models.customer import Customer
 from stark.models.images import ProductImage
 from lannister.utils.caching_query import FromCache, RelationshipCache
 
-import re
 from lannister.utils.routes import AppURL
 
 
@@ -31,7 +30,7 @@ class ProductHandler(CacheJSONHandler):
 			criteria = self.db.query(Product).distinct(Product.id).group_by(Product.id)
 
 			# lazy load
-			criteria = criteria.join(ProductImage)
+			criteria = criteria.outerjoin(ProductImage)
 
 			# filtering
 			if id == None:
