@@ -6,7 +6,7 @@ from lannister.interfaces.social_media.exceptions import SocmedException, Socmed
 
 class TwitterInterface(object):
 	@staticmethod
-	def post(twitter_account, headline, product_page):
+	def post(twitter_account, headline, product_page, product):
 		try:
 			logger.debug('TwitterInterface: post to twitter @%s' % twitter_account.social_name)
 			
@@ -72,7 +72,7 @@ class TwitterInterface(object):
 			# get account info
 			api = tweepy.API(auth)
 			user = api.me()
-			logger.debug('Twitter account %s', user)
+			logger.debug('TwitterInterface: twitter account %s', user)
 
 			response['access_token'] = auth.access_token
 			response['access_token_secret'] = auth.access_token_secret

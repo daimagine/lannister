@@ -25,3 +25,5 @@ AppURL["twitter_verify_account"] = "%s/socmeds/twitter/actions/verify" % api_ver
 AppURL["users"] = "%s/users/([0-9]+)" % api_version
 AppURL["affiliate_sales"] = "%s/affiliate_sales/([0-9]+)" % api_version
 AppURL["product_affiliate_info"] = "%s/product_affiliate_info/([0-9]+)" % api_version
+AppURL["fb_redirect_url"] = "%s/socmeds/fb/actions/redirect_url" % api_version
+AppURL["fb_verify_account"] = "%s/socmeds/fb/actions/verify" % api_version

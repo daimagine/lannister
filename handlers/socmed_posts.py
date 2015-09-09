@@ -19,7 +19,6 @@ from stark.models.affiliate import Affiliate
 from stark.models.customer import Customer
 from stark.models.customer_socmed_account import CustomerSocmedAccount
 
-import re
 from lannister.utils.routes import AppURL, api_version
 
 
@@ -54,6 +53,11 @@ class SocmedPostHandler(CacheJSONHandler):
 			criteria = criteria.filter(CustomerSocmedAccount.id.in_(socmed_account_ids))
 			socmed_accounts = criteria.all()
 
+			# find product
+			logger.debug('find by product_id %s' % product_id)
+			product_criteria = self.db.query(Product).filter(Product.id == product_id)
+			product = product_criteria.one()
+
 			if affiliate_id != 0:
 				# find and update affiliate headline
 				logger.debug('find and update affiliate by affiliate_id %s' % affiliate_id)
@@ -65,14 +69,13 @@ class SocmedPostHandler(CacheJSONHandler):
 				self.response['affiliate'] = serializer.dump(affiliate).data
 
 			else :
-				# find and update product headline
-				logger.debug('find and update product by product_id %s' % product_id)
-				product_criteria = self.db.query(Product).filter(Product.id == product_id)
-				product = product_criteria.one()
+				# product headline
+				logger.debug('update product headline %s' % headline)
 				product.headline = headline
-				# set product response
-				serializer = ProductSchema()
-				self.response['product'] = serializer.dump(product).data
+				
+			# set product response
+			serializer = ProductSchema()
+			self.response['product'] = serializer.dump(product).data
 
 			# save product or affiliate headline
 			self.db.commit()
@@ -80,8 +83,7 @@ class SocmedPostHandler(CacheJSONHandler):
 			# having all required infos, post to social medias
 			for socmed in socmed_accounts:
 				logger.debug('post to socmed account %s' % socmed.social_name)
-				if socmed.social_media.id == SOCIAL_MEDIA.TWITTER:
-					SocmedInterface.post(socmed, headline, product_page)
+				SocmedInterface.post(socmed, headline, product_page, product)
 
 			# return response
 			self.response['message'] = 'Post to social media success'
