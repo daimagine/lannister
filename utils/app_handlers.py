@@ -14,6 +14,7 @@ from lannister.handlers.affiliates import AffiliateHandler
 from lannister.handlers.customer_socmeds import CustomerSocmedHandler
 from lannister.handlers.socmed_posts import SocmedPostHandler
 from lannister.handlers.twitter.add_accounts import AddTwitterAccountHandler
+from lannister.handlers.fb.add_accounts import AddFbAccountHandler
 from lannister.handlers.users import UserHandler
 from lannister.handlers.reports.affiliate_sales import AffiliateSalesHandler
 from lannister.handlers.product_affiliate_info import ProductAffiliateInfoHandler
@@ -45,4 +46,6 @@ AppHandlers = [
     (r"%s" % AppURL["users"], UserHandler),
     (r"%s" % AppURL["affiliate_sales"], AffiliateSalesHandler),
     (r"%s" % AppURL["product_affiliate_info"], ProductAffiliateInfoHandler),
+    (r"%s" % AppURL["fb_redirect_url"], AddFbAccountHandler),
+    (r"%s" % AppURL["fb_verify_account"], AddFbAccountHandler),
 ]        

@@ -13,7 +13,6 @@ from stark.models.affiliate import Affiliate
 from stark.models.customer import Customer
 from lannister.utils.caching_query import FromCache, RelationshipCache
 
-import re
 from lannister.utils.routes import AppURL
 
 class SearchAffiliatesHandler(CacheJSONHandler):
