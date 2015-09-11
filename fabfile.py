@@ -122,4 +122,5 @@ def restart_worker():
 		    with prefix('source /usr/local/bin/virtualenvwrapper.sh'):
 		        with cd('%(base_path)s' % env), prefix('workon jualio'):
 		        	with prefix('add2virtualenv %(base_path)s' % env):
-		        		sudo('celery multi start w1 -A sociale -l %(log_env)s')
+		        		sudo('celery multi stopwait w1 -A sociale -l %(log_env)s' % env)
+		        		sudo('celery multi start w1 -A sociale -l %(log_env)s' % env)
