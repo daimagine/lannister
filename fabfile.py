@@ -9,10 +9,16 @@ def staging():
 	env.path = env.base_path + '/lannister'
 	env.git = 'https://github.com/daimagine/lannister.git'
 	env.branch = 'develop'
+	env.log_env = 'debug'
 	env.dependencies = [
 		{
 			'name': 'stark',
 			'git': 'https://github.com/daimagine/stark.git',
+			'branch': 'develop'
+		},
+		{
+			'name': 'sociale',
+			'git': 'https://github.com/daimagine/sociale.git',
 			'branch': 'develop'
 		}
 	]
@@ -25,12 +31,18 @@ def production():
 	env.base_path = '/home/adi/apps/py'
 	env.path = env.base_path + '/lannister'
 	env.git = 'https://github.com/daimagine/lannister.git'
-	env.branch = 'develop'
+	env.branch = 'master'
+	env.log_env = 'debug'
 	env.dependencies = [
 		{
 			'name': 'stark',
 			'git': 'https://github.com/daimagine/stark.git',
-			'branch': 'develop'
+			'branch': 'master'
+		},
+		{
+			'name': 'sociale',
+			'git': 'https://github.com/daimagine/sociale.git',
+			'branch': 'master'
 		}
 	]
 
@@ -47,6 +59,7 @@ def deploy():
 	"""Deploy the latest version of the site to the server and restart nginx"""
 	checkout_latest()
 	restart_server()
+	restart_worker()
 
 def clone_dependencies():
 	"""Do initial clone of the git repo dependencies"""
@@ -102,4 +115,11 @@ def restart_server():
 			        	sudo('cp %(path)s/deployment/nginx/%(settings)s.conf /etc/nginx/conf.d/ng_lannister.conf' % env)
 			        	sudo('service nginx restart')
 
-
+def restart_worker():
+	"""Restart celery worker"""
+	with settings(warn_only=True):
+		with prefix('WORKON_HOME=$HOME/.virtualenvs'):
+		    with prefix('source /usr/local/bin/virtualenvwrapper.sh'):
+		        with cd('%(base_path)s' % env), prefix('workon jualio'):
+		        	with prefix('add2virtualenv %(base_path)s' % env):
+		        		sudo('celery multi start w1 -A sociale -l %(log_env)s')

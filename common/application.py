@@ -10,10 +10,6 @@ from lannister.utils.logs import logger
 # sql alchemy
 from sqlalchemy import create_engine, sql
 from sqlalchemy.orm import scoped_session, sessionmaker
-# dogpiles
-from dogpile.cache.region import make_region
-from lannister.utils.caching_query import query_callable
-from hashlib import md5
 
 # routes
 from lannister.utils.app_handlers import AppHandlers
@@ -49,14 +45,3 @@ class Application(tornado.web.Application):
         self.sql = sql
 
         super(Application, self).__init__(AppHandlers, **tornado_settings)
-
-
-def md5_key_mangler(key):
-    """Receive cache keys as long concatenated strings;
-    distill them into an md5 hash.
-
-    """
-    key = md5(key.encode('ascii')).hexdigest()
-    logger.debug('App: md5_key_mangler ')
-    logger.debug(key)
-    return key

@@ -6,6 +6,9 @@ from lannister.utils.logs import logger
 from lannister.utils.strings import StringUtils
 from lannister import settings
 from lannister.interfaces.social_media.exceptions import SocmedException, SocmedPostException
+from stark.models.schema import ProductSchema, CustomerSocmedAccountTokenSchema
+from sociale import tasks as SocialTask
+
 
 class FacebookInterface(object):
 	@staticmethod
@@ -13,22 +16,13 @@ class FacebookInterface(object):
 		try:
 			logger.debug('FacebookInterface: post to facebook %s' % fb_account.social_name)
 
-			# build graph api
-			ACCESS_TOKEN = fb_account.token
-			graph = facebook.GraphAPI(access_token=ACCESS_TOKEN)
-
-			# set headline
-			logger.debug('FacebookInterface: headline: %s' % headline)
-			message = "%s %s" % (headline, product_page)
-
-			# post
-			attachment =  {
-				'name': product.name,
-				'link': product_page,
-				'description': product.description,
-				'picture': product.image
+			params = {
+				'fb_account': CustomerSocmedAccountTokenSchema().dump(fb_account).data,
+				'headline': headline,
+				'product_page' : product_page,
+				'product' : ProductSchema().dump(product).data
 			}
-			graph.put_wall_post(message=message, attachment=attachment)
+			SocialTask.post_fb.delay(params)
 
 		except Exception, error:
 			logger.exception(error);
