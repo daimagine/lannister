@@ -32,7 +32,7 @@ def production():
 	env.path = env.base_path + '/lannister'
 	env.git = 'https://github.com/daimagine/lannister.git'
 	env.branch = 'master'
-	env.log_env = 'debug'
+	env.log_env = 'info'
 	env.dependencies = [
 		{
 			'name': 'stark',
@@ -59,7 +59,7 @@ def deploy():
 	"""Deploy the latest version of the site to the server and restart nginx"""
 	checkout_latest()
 	restart_server()
-	restart_worker()
+	# restart_worker()
 
 def clone_dependencies():
 	"""Do initial clone of the git repo dependencies"""
