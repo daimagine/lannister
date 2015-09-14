@@ -31,7 +31,37 @@ class SearchAffiliatesHandler(CacheJSONHandler):
 			if 'name' in self.request.arguments:
 				name = "%" + self.get_argument('name') + "%"
 				logger.debug('name criteria: %s' % name)
-				criteria = criteria.filter(Product.name.like(name))
+				criteria = criteria.filter(Product.name.ilike(name))
+			
+			if 'seller' in self.request.arguments:
+				name = "%" + self.get_argument('seller') + "%"
+				logger.debug('seller criteria: %s' % name)
+				criteria = criteria.join(Customer)
+				criteria = criteria.filter(Customer.name.ilike(name))
+
+			if 'price_min' in self.request.arguments:
+				price_min = ParseUtil.parseInt(self.get_argument('price_min'))
+				logger.debug('price min criteria: %s' % price_min)
+				if price_min != None and price_min > 0:
+					criteria = criteria.filter(Product.price >= price_min)
+
+			if 'price_max' in self.request.arguments:
+				price_max = ParseUtil.parseInt(self.get_argument('price_max'))
+				logger.debug('price min criteria: %s' % price_max)
+				if price_max != None and price_max > 0:
+					criteria = criteria.filter(Product.price <= price_max)
+			
+			if 'fee_min' in self.request.arguments:
+				fee_min = ParseUtil.parseInt(self.get_argument('fee_min'))
+				logger.debug('fee_min criteria: %s' % fee_min)
+				if fee_min != None and fee_min > 0:
+					criteria = criteria.filter(Product.affiliate_fee >= fee_min)
+			
+			if 'fee_max' in self.request.arguments:
+				fee_max = ParseUtil.parseInt(self.get_argument('fee_max'))
+				logger.debug('fee_max criteria: %s' % fee_max)
+				if fee_max != None and fee_max > 0:
+					criteria = criteria.filter(Product.affiliate_fee <= fee_max)
 
 			# affiliate ready filter
 			affiliate = True
@@ -49,6 +79,12 @@ class SearchAffiliatesHandler(CacheJSONHandler):
 			# affiliate_subs = affiliate_subs.filter(Affiliate.customer_id == customer_id)
 			# affiliate_subs = affiliate_subs.distinct(Product.id)
 			# criteria = criteria.filter(self.sql.not_(Product.id.in_(affiliate_subs.subquery())))
+
+			# sort
+			if 'sort' in self.request.arguments:
+				sort = self.get_argument('sort')
+				logger.debug('sort criteria: %s' % sort)
+				# if desc use self.desc
 
 			products = criteria.all()
 			serializer = ProductSchema(many= True)

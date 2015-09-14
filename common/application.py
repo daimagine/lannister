@@ -8,7 +8,7 @@ from lannister import settings
 # logging
 from lannister.utils.logs import logger
 # sql alchemy
-from sqlalchemy import create_engine, sql
+from sqlalchemy import create_engine, sql, desc
 from sqlalchemy.orm import scoped_session, sessionmaker
 
 # routes
@@ -43,5 +43,6 @@ class Application(tornado.web.Application):
         db_engine = create_engine(dsn, echo=True)
         self.db = scoped_session(sessionmaker(bind=db_engine, autocommit=True))
         self.sql = sql
+        self.desc = desc
 
         super(Application, self).__init__(AppHandlers, **tornado_settings)
