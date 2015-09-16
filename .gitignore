@@ -9,3 +9,4 @@ pip-selfcheck.json
 *.pyo
 *.rdb
 .ropeproject/
+npm-debug.log
