@@ -1,3 +1,6 @@
+# subprocess
+from subprocess import Popen, PIPE, STDOUT
+import json
 # tornado
 from tornado import gen
 # utils
@@ -24,9 +27,9 @@ class SessionHandler(JSONHandler):
             captcha = self.request.data['captcha']
 
             # check captcha
-            captcha_validity = verify_captcha(captcha)
-            if captcha_validity != True:
-                raise AuthenticationException('Invalid Captcha')
+            # captcha_validity = verify_captcha(captcha)
+            # if captcha_validity != True:
+            #     raise AuthenticationException('Invalid Captcha')
             
             # find customer by email criteria
             self.db.begin()
@@ -37,9 +40,43 @@ class SessionHandler(JSONHandler):
             customer = criteria.one()
 
             # check customer password matching
-            if bcrypt.hashpw(
-                password.encode('utf-8'), 
-                customer.password_1.encode('utf-8')) != customer.password_1:
+            logger.debug('Customer stored password: %s' % customer.password_1)
+            try:
+                if bcrypt.hashpw(
+                    password.encode('utf-8'), 
+                    customer.password_1.encode('utf-8')) != customer.password_1:    
+                        raise Exception('Invalid Credential')
+
+            except Exception, error:
+                logger.debug('password matching first try failed')
+                logger.exception(error)
+                try:
+                    # check for existing system password
+                    output = '';
+                    # p = Popen([
+                    #     'java', 
+                    #     '-cp', 
+                    #     '../../vendor/VendorLite.jar', 
+                    #     'com.jualio.vendor.lite.PasswordLite', 
+                    #     password.encode('utf-8')
+                    # ], stdout=PIPE, stderr=STDOUT)
+                    path = 'java -cp ./vendors/VendorLite.jar com.jualio.vendor.lite.PasswordLite %s' % password.encode('utf-8')
+                    p = Popen(path.split(),
+                            stdout=PIPE, 
+                            stderr=STDOUT
+                        )
+                    for line in p.stdout:
+                        output += line;
+                    output = output.encode('utf-8')
+
+                    logger.debug('JSON response :%s' % output)
+                    parsed_json = json.loads(output)
+
+                    if parsed_json['password'] != customer.password_1:
+                        raise Exception('Invalid Credential')
+
+                except Exception, error:
+                    logger.exception(error)
                     raise AuthenticationException('Invalid Credential')
 
             # generate client_token and client_token_valid_time
