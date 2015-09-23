@@ -91,6 +91,7 @@ class ProductHandler(CacheJSONHandler):
 			product.is_affiliate_ready = productParam['is_affiliate_ready']
 			product.affiliate_fee = productParam['affiliate_fee']
 			product.affiliate_fee_type = productParam['affiliate_fee_type']
+			product.affiliate_percentage = productParam['affiliate_percentage']
 
 			# save product
 			self.db.commit()
