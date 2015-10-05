@@ -43,6 +43,6 @@ class Application(tornado.web.Application):
         db_engine = create_engine(dsn, echo=True)
         self.db = scoped_session(sessionmaker(bind=db_engine, autocommit=True))
         self.sql = sql
-        self.desc = desc
+        self.db_desc = desc
 
         super(Application, self).__init__(AppHandlers, **tornado_settings)

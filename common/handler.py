@@ -49,6 +49,9 @@ class BaseHandler(tornado.web.RequestHandler):
     def sql(self):
         return self.application.sql
 
+    @property
+    def db_desc(self):
+        return self.application.db_desc
 
 
 class JSONHandler(BaseHandler):

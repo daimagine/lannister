@@ -35,6 +35,7 @@ class AffiliateSalesHandler(CacheJSONHandler):
 			criteria = criteria.filter(Transactions.status == TransactionStatus.SUCCESS)
 			criteria = criteria.join(Affiliate).join(Affiliate.customer)
 			criteria = criteria.filter(Customer.id == affiliator_id)
+			criteria = criteria.order_by(self.db_desc(Transactions.id))
 
 			# get transactions of affiliator
 			transactions = criteria.all()
@@ -42,9 +43,11 @@ class AffiliateSalesHandler(CacheJSONHandler):
 			# calculate
 			count = 0
 			amount = 0
+			total = 0
 
 			for transaction in transactions:
 				count = count + 1
+				total = total + transaction.amount
 				if transaction.affiliator_received != None:
 					amount = amount + transaction.affiliator_received
 
@@ -54,6 +57,7 @@ class AffiliateSalesHandler(CacheJSONHandler):
 			sales_overview['transactions'] = serializer.dump(transactions).data
 			sales_overview['count'] = count
 			sales_overview['amount'] = amount
+			sales_overview['total'] = total
 
 			self.response['sales_overview'] = sales_overview
 
